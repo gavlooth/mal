@@ -4,7 +4,7 @@ const grammar = @import("grammar.zig");
 // mpc_define(Lispy, "number : /-?[0-9]+/");
 
 pub fn main() !void {
-    grammar.unmain();
+    try grammar.unmain();
 }
 
 // std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
