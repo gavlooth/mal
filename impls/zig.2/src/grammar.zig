@@ -47,6 +47,17 @@ pub fn unmain() !void {
     const result = mpc.mpc_parse("input", @as([*c]u8, @ptrCast(@alignCast(@constCast(input)))), Lispy, &r) != 0;
     if (result) {
         mpc.mpc_ast_print(@as([*c]mpc.mpc_ast_t, @ptrCast(@alignCast(r.output))));
+
+        const the_ast: [*c]mpc_ast_t = @as([*c]mpc_ast_t, @ptrCast(@alignCast(r.output)));
+
+        // const as_slice  = std.mem.span( );
+
+        std.debug.print("{}", .{@as(i32, the_ast.*.children_num)});
+        // std.debug.print(" Copy: {i}\n", .{@intCast(the_ast.*.children_num)});
+        // _ = printf("Tag: %s\n", the_ast.*.tag);
+        // _ = printf("Contents: %s\n", the_ast.*.contents);
+        // _ = printf("Number of children: %i\n", the_ast.*.children_num);
+
     }
 
     mpc.mpc_cleanup(@as(c_int, 8), Number, Symbol, String, Comment, Sexpr, Qexpr, Expr, Lispy);
