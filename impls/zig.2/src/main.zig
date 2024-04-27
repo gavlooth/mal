@@ -5,6 +5,5 @@ const grammar = @import("grammar.zig");
 
 pub fn main() !void {
     const lisp_grammar = grammar.init_grammar();
-
-    try grammar.free_grammar(lisp_grammar);
+    errdefer grammar.free_grammar(lisp_grammar);
 }
