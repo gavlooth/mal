@@ -31,7 +31,25 @@ pub const struct_mpc_ast_t = extern struct {
 };
 pub const mpc_ast_t = struct_mpc_ast_t;
 
-pub fn unmain() !void {
+const Language_symbols = enum(u2) { number, symbol, string, comment, sexpr, qexpr, expr, lispy };
+//const Grammar = struct {
+//    const Impl = @Type(.Opaque);
+//    impl: *Impl,
+//};
+// .symbol = mpc.mpc_new("symbol"), .string = mpc.mpc_new("string"), .comment = mpc.mpc_new("comment"), .sexpr = mpc.mpc_new("sexpr"), .qexpr = mpc.mpc_new("qexpr"), .expr = mpc.mpc_new("expr"), .lispy = mpc.mpc_new("lispy") };
+//
+
+const Grammar = struct { number: ?*mpc.mpc_parser_t, symbol: ?*mpc.mpc_parser_t, string: ?*mpc.mpc_parser_t, comment: ?*mpc.mpc_parser_t, sexpr: ?*mpc.mpc_parser_t, qexpr: ?*mpc.mpc_parser_t, expr: ?*mpc.mpc_parser_t, lispy: ?*mpc.mpc_parser_t };
+
+pub fn init_grammar() Grammar {
+    return Grammar{ .number = mpc.mpc_new("number"), .symbol = mpc.mpc_new("symbol"), .string = mpc.mpc_new("string"), .comment = mpc.mpc_new("comment"), .sexpr = mpc.mpc_new("sexpr"), .qexpr = mpc.mpc_new("qexpr"), .expr = mpc.mpc_new("expr"), .lispy = mpc.mpc_new("lispy") };
+}
+
+pub fn free_grammar(grammar: Grammar) !void {
+    mpc.mpc_cleanup(@as(c_int, 8), grammar.number, grammar.symbol, grammar.string, grammar.comment, grammar.sexpr, grammar.qexpr, grammar.expr, grammar.lispy);
+}
+
+pub fn mpc_init() !void {
     const Number = mpc.mpc_new("number");
     const Symbol = mpc.mpc_new("symbol");
     const String = mpc.mpc_new("string");
