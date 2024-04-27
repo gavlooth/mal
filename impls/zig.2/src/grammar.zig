@@ -42,7 +42,20 @@ const Language_symbols = enum(u2) { number, symbol, string, comment, sexpr, qexp
 const Grammar = struct { number: ?*mpc.mpc_parser_t, symbol: ?*mpc.mpc_parser_t, string: ?*mpc.mpc_parser_t, comment: ?*mpc.mpc_parser_t, sexpr: ?*mpc.mpc_parser_t, qexpr: ?*mpc.mpc_parser_t, expr: ?*mpc.mpc_parser_t, lispy: ?*mpc.mpc_parser_t };
 
 pub fn init_grammar() Grammar {
-    return Grammar{ .number = mpc.mpc_new("number"), .symbol = mpc.mpc_new("symbol"), .string = mpc.mpc_new("string"), .comment = mpc.mpc_new("comment"), .sexpr = mpc.mpc_new("sexpr"), .qexpr = mpc.mpc_new("qexpr"), .expr = mpc.mpc_new("expr"), .lispy = mpc.mpc_new("lispy") };
+    const lisp_grammar = Grammar{ .number = mpc.mpc_new("number"), .symbol = mpc.mpc_new("symbol"), .string = mpc.mpc_new("string"), .comment = mpc.mpc_new("comment"), .sexpr = mpc.mpc_new("sexpr"), .qexpr = mpc.mpc_new("qexpr"), .expr = mpc.mpc_new("expr"), .lispy = mpc.mpc_new("lispy") };
+
+    const grammar_rules =
+        \\ number  \"number\"  : /[0-9]+/ ;
+        \\ symbol  \"symbol\"  : /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&]+/ ; 
+        \\ string  \"string\"  : /\"(\\\\.|[^\"])*\"/ ;    
+        \\ comment             : /;[^\\r\\n]*/ ;    
+        \\ sexpr               : '(' <expr>* ')' ;  
+        \\ qexpr               : '{' <expr>* '}' ;     
+        \\ expr                : <number>  | <symbol> | <string> | <comment> | <sexpr>  | <qexpr> ;   
+        \\ lispy               : /^/ <expr>* /$/ ;                  "
+    ;
+    _ = mpc.mpca_lang(mpc.MPCA_LANG_PREDICTIVE, grammar_rules, lisp_grammar.number, lisp_grammar.symbol, lisp_grammar.string, lisp_grammar.comment, lisp_grammar.sexpr, lisp_grammar.qexpr, lisp_grammar.expr, lisp_grammar.lispy, @as(?*anyopaque, @ptrFromInt(@as(c_int, 0))));
+    return lisp_grammar;
 }
 
 pub fn free_grammar(grammar: Grammar) !void {
@@ -59,7 +72,6 @@ pub fn mpc_init() !void {
     const Expr = mpc.mpc_new("expr");
     const Lispy = mpc.mpc_new("lispy");
 
-    _ = mpc.mpca_lang(mpc.MPCA_LANG_PREDICTIVE, " number  \"number\"  : /[0-9]+/ ;                          symbol  \"symbol\"  : /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&]+/ ;  string  \"string\"  : /\"(\\\\.|[^\"])*\"/ ;              comment             : /;[^\\r\\n]*/ ;                     sexpr               : '(' <expr>* ')' ;                   qexpr               : '{' <expr>* '}' ;                   expr                : <number>  | <symbol> | <string>                         | <comment> | <sexpr>  | <qexpr> ;    lispy               : /^/ <expr>* /$/ ;                  ", Number, Symbol, String, Comment, Sexpr, Qexpr, Expr, Lispy, @as(?*anyopaque, @ptrFromInt(@as(c_int, 0))));
     var r: mpc.mpc_result_t = undefined;
     const input = "(+ 1 2)";
     const result = mpc.mpc_parse("input", @as([*c]u8, @ptrCast(@alignCast(@constCast(input)))), Lispy, &r) != 0;
