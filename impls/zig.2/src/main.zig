@@ -12,10 +12,26 @@ pub fn main() !void {
     const the_ast = try grammar.parse_input_string(@constCast(input), lisp_grammar.lispy);
     const children = the_ast.*.children;
 
-    const pipa = @as([]u8, std.mem.span(children[0].*.contents));
-    // const pipa = @as(i32, the_ast.*.children_num);
+    // const kolo = @as([]u8, std.mem.span(the_ast.*.children));
 
-    std.debug.print("{s}", .{pipa});
+    std.debug.print("{s}", .{@as([]u8, std.mem.span(children[0].*.contents))});
+
+    // std.debug.print("{s}", .{@as([]u8, std.mem.span(children[0].*.tag))});
+
+    std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.tag))});
+
+    std.debug.print("{s}", .{@as([]u8, std.mem.span(children[1].*.children[0].*.contents))});
+    std.debug.print("{s}", .{@as([]u8, std.mem.span(children[1].*.children[1].*.contents))});
+    std.debug.print("{s}", .{@as([]u8, std.mem.span(children[1].*.children[2].*.contents))});
+
+    std.debug.print("{s}\n", .{@as([]u8, std.mem.span(children[1].*.children[3].*.contents))});
+    std.debug.print("\n{}", .{@as(i32, children[1].*.children[0].*.children_num)});
+
+    // std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.contents))});
+    // std.debug.print("\n{}", .{@as(i32, children[1].*.children_num)});
+
+    // std.debug.print("\n{}", .{@as(i32, children[2].*.children_num)});
+    // std.debug.print("{s}", .{@as([]u8, std.mem.span(the_ast.*.children_num))});
 }
 
 // contents: [*c]u8 = @import("std").mem.zeroes([*c]u8),
