@@ -20,11 +20,14 @@ pub fn main() !void {
 
     std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.tag))});
 
-    std.debug.print("{s}", .{@as([]u8, std.mem.span(children[1].*.children[0].*.contents))});
-    std.debug.print("{s}", .{@as([]u8, std.mem.span(children[1].*.children[1].*.contents))});
-    std.debug.print("{s}", .{@as([]u8, std.mem.span(children[1].*.children[2].*.contents))});
-
-    std.debug.print("{s}\n", .{@as([]u8, std.mem.span(children[1].*.children[3].*.contents))});
+    std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.children[0].*.contents))});
+    std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.children[0].*.tag))});
+    std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.children[1].*.contents))});
+    std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.children[1].*.tag))});
+    std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.children[2].*.contents))});
+    std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.children[2].*.tag))});
+    std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.children[3].*.contents))});
+    std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.children[3].*.tag))});
     std.debug.print("\n{}", .{@as(i32, children[1].*.children[0].*.children_num)});
 
     // std.debug.print("\n{s}", .{@as([]u8, std.mem.span(children[1].*.contents))});
