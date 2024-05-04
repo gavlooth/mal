@@ -1,43 +1,33 @@
 const grammar = @import("grammar.zig");
 const std = @import("std");
+const Result = std.zig.number_literal.Result;
 
-pub fn eval_number(ast: grammar.mpc_ast_t) u32 {
-    const tag = @as([:0]u8, ast.*.tag);
-    if (tag == @constCast("number")) {
-        return 30;
+pub fn eval_number(ast: grammar.mpc_ast_t) !i32 {
+    const tag = @as([]u8, std.mem.span(ast.tag));
+    if (std.mem.count(u8, tag, "number") > 0) {
+        return try std.fmt.parseInt(i32, std.mem.span(ast.contents), 10);
+    } else {
+        const the_operator = @as([]u8, std.mem.span(ast.children[1].*.contents));
+
+        var x = try eval_number(ast.children[2].*);
+        var i: usize = 3;
+        while (std.mem.count(u8, std.mem.span(ast.children[i].*.tag), "expr") > 0) : (i += 1) {
+            x = try eval_op(x, the_operator, try eval_number(ast.children[i].*));
+        }
+        return x;
     }
-    return 10;
 }
 
-// long eval(mpc_ast_t* t) {
-//
-//   /* If tagged as number return it directly. */
-//   if (strstr(t->tag, "number")) {
-//     return atoi(t->contents);
-//   }
-//
-//   /* The operator is always second child. */
-//   char* op = t->children[1]->contents;
-//
-//   /* We store the third child in `x` */
-//   long x = eval(t->children[2]);
-//
-//   /* Iterate the remaining children and combining. */
-//   int i = 3;
-//   while (strstr(t->children[i]->tag, "expr")) {
-//     x = eval_op(x, op, eval(t->children[i]));
-//     i++;
-//   }
-//
-//   return x;
-// }
-// We can define the eval_op function as follows. It takes in a number, an operator string, and another number. It tests for which operator is passed in, and performs the corresponding C operation on the inputs.
-//
-// /* Use operator string to see which operation to perform */
-// long eval_op(long x, char* op, long y) {
-//   if (strcmp(op, "+") == 0) { return x + y; }
-//   if (strcmp(op, "-") == 0) { return x - y; }
-//   if (strcmp(op, "*") == 0) { return x * y; }
-//   if (strcmp(op, "/") == 0) { return x / y; }
-//   return 0;
-// }
+pub fn eval_op(x: i32, operator: []u8, y: i32) !i32 {
+    if (std.mem.eql(u8, operator, @constCast("+"))) {
+        return x + y;
+    } else if (std.mem.eql(u8, operator, @constCast("-"))) {
+        return x - y;
+    } else if (std.mem.eql(u8, operator, @constCast("*"))) {
+        return x * y;
+    } else if (std.mem.eql(u8, operator, @constCast("/"))) {
+        return @divFloor(x, y);
+    } else {
+        return error.ArithmeticError;
+    }
+}
